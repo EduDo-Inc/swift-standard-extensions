@@ -5,22 +5,22 @@ import CocoaAliases
 open class CustomCocoaViewController: CocoaViewController {
   private(set) open var isVisible = false
   
-  @Handler<Bool>
+  @Handler<Void>
   public var onDismiss
   
   @Handler<Void>
   public var onViewDidLoad
   
-  @Handler<Bool>
+  @Handler<Void>
   public var onViewWillAppear
   
-  @Handler<Bool>
+  @Handler<Void>
   public var onViewDidAppear
   
-  @Handler<Bool>
+  @Handler<Void>
   public var onViewWillDisappear
   
-  @Handler<Bool>
+  @Handler<Void>
   public var onViewDidDisappear
   
   @Handler<Void>
@@ -36,23 +36,23 @@ open class CustomCocoaViewController: CocoaViewController {
   
   open override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
-    _onViewWillAppear(animated)
+    _onViewWillAppear()
   }
   
   open override func viewDidAppear(_ animated: Bool) {
     isVisible = true
     super.viewDidAppear(animated)
-    _onViewDidAppear(animated)
+    _onViewDidAppear()
   }
   
   open override func viewWillDisappear(_ animated: Bool) {
     super.viewWillDisappear(animated)
-    _onViewWillDisappear(animated)
+    _onViewWillDisappear()
   }
   
   open override func viewDidDisappear(_ animated: Bool) {
     super.viewDidDisappear(animated)
-    _onViewDidDisappear(animated)
+    _onViewDidDisappear()
     isVisible = false
   }
   
@@ -67,13 +67,13 @@ open class CustomCocoaViewController: CocoaViewController {
   }
   
   open override func loadView() {
-    guard !tryLoadCustomView() else { return }
+    guard !tryLoadCustomContentView() else { return }
     super.loadView()
   }
   
   open override func dismiss(animated: Bool, completion: (() -> Void)? = nil) {
     super.dismiss(animated: animated, completion: completion)
-    _onDismiss(animated)
+    _onDismiss()
   }
   
   public convenience init() {

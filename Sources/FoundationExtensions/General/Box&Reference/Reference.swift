@@ -1,5 +1,4 @@
 import Foundation
-import DeclarativeConfiguration
 
 #if canImport(Combine)
 import Combine

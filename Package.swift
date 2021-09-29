@@ -7,11 +7,15 @@ extension String {
 }
 
 let package = Package(
-  name: "swift-essential-extensions",
+  name: "swift-extensions",
+  platforms: [
+    .iOS(.v13),
+    .macOS(.v10_15)
+  ],
   products: [
     .library(
-      name: "EssentialExtensions",
-      targets: ["EssentialExtensions"]
+      name: "StandardExtensions",
+      targets: ["StandardExtensions"]
     ),
     .library(
       name: "CocoaExtensions",
@@ -29,40 +33,40 @@ let package = Package(
   dependencies: [
     .package(
       name: "combine-cocoa",
-      url: .github("makeupstudio/combine-cocoa"),
+      url: .github("capturecontext/combine-cocoa"),
+      .upToNextMinor(from: "0.0.1")
+    ),
+    .package(
+      name: "combine-extensions",
+      url: .github("capturecontext/combine-extensions"),
       .upToNextMinor(from: "0.0.1")
     ),
     .package(
       name: "cocoa-aliases",
-      url: .github("makeupstudio/cocoa-aliases"),
-      .upToNextMajor(from: "1.1.1")
+      url: .github("capturecontext/cocoa-aliases"),
+      .upToNextMajor(from: "1.0.0")
     ),
     .package(
       name: "swift-declarative-configuration",
-      url: .github("makeupstudio/swift-declarative-configuration"),
-      .upToNextMinor(from: "0.3.0")
+      url: .github("capturecontext/swift-declarative-configuration"),
+      .upToNextMinor(from: "0.0.1")
     ),
-//    .package(
-//      name: "SwiftUIX",
-//      url: .github("swiftuix/swiftuix"),
-//      .upToNextMinor(from: "0.0.8")
-//    ),
     .package(
       name: "weak",
-      url: .github("makeupstudio/weak"),
-      .upToNextMajor(from: "1.0.1")
+      url: .github("capturecontext/weak"),
+      .upToNextMajor(from: "1.0.0")
     ),
     .package(
       name: "swift-prelude",
-      url: .github("maximkrouk/swift-prelude"),
-      .branch("main")
+      url: .github("capturecontext/swift-prelude"),
+      .upToNextMinor(from: "0.0.1")
     )
   ],
   targets: [
     .target(
-      name: "EssentialExtensions",
+      name: "StandardExtensions",
       dependencies: [
-        .target(name: "FoundationExtensions")
+        .target(name: "SwiftUIExtensions")
       ]
     ),
     .target(
@@ -75,6 +79,14 @@ let package = Package(
         .product(
           name: "Prelude",
           package: "swift-prelude"
+        ),
+        .product(
+          name: "CombineExtensions",
+          package: "combine-extensions"
+        ),
+        .product(
+          name: "Weak",
+          package: "weak"
         )
       ]
     ),
@@ -85,6 +97,10 @@ let package = Package(
         .product(
           name: "CocoaAliases",
           package: "cocoa-aliases"
+        ),
+        .product(
+          name: "CombineCocoa",
+          package: "combine-cocoa"
         )
       ]
     ),
@@ -95,15 +111,12 @@ let package = Package(
         .product(
           name: "CocoaAliases",
           package: "cocoa-aliases"
-        ),
-//        .product(
-//          name: "SwiftUIX",
-//          package: "SwiftUIX"
-//        )
+        )
       ]
     ),
     
     // MARK: ––––––––––––– Tests –––––––––––––
+    
     .testTarget(
       name: "FoundationExtensionsTests",
       dependencies: [
