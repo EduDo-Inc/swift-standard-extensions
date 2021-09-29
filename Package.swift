@@ -7,7 +7,7 @@ extension String {
 }
 
 let package = Package(
-  name: "swift-extensions",
+  name: "swift-standard-extensions",
   platforms: [
     .iOS(.v13),
     .macOS(.v10_15)
