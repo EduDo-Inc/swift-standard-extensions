@@ -67,6 +67,7 @@ extension Optional {
 }
 
 extension Optional where Wrapped: Collection {
+  @inlinable
   public var isNilOrEmpty: Bool {
     map(\.isEmpty).or(true)
   }

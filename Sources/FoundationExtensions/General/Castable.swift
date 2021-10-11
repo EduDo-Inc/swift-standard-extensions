@@ -1,8 +1,5 @@
 import Foundation
-
-public func _cast<U, T>(_ object: U, to type: T.Type) -> T? {
-  object as? T
-}
+import Prelude
 
 public protocol Castable {
   func `as`<T>(_ type: T.Type) -> T?
@@ -11,11 +8,11 @@ public protocol Castable {
 
 extension Castable {
   public func `as`<T>(_ type: T.Type) -> T? {
-    _cast(self, to: type)
+    cast(to: type)(self)
   }
 
   public func `is`<T>(_ type: T.Type) -> Bool {
-    self is T
+    isCastable(to: type)(self)
   }
 }
 

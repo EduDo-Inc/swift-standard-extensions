@@ -8,24 +8,24 @@
 import Foundation
 
 @propertyWrapper
-public struct EquatableContainer<Value>: Equatable {
-  public init<T>(compare comparator: Comparator<Value>) where Value == T? {
+public struct Equated<Value>: Equatable {
+  public init<T>(compare comparator: Comparator) where Value == T? {
     self.init(.none, compare: comparator)
   }
   
-  public init(_ wrappedValue: Value, compare comparator: Comparator<Value>) {
+  public init(_ wrappedValue: Value, compare comparator: Comparator) {
     self.init(wrappedValue: wrappedValue, compare: comparator)
   }
 
-  public init(wrappedValue: Value, compare comparator: Comparator<Value>) {
+  public init(wrappedValue: Value, compare comparator: Comparator) {
     self.wrappedValue = wrappedValue
     self.comparator = comparator
   }
 
   public var wrappedValue: Value
-  public var comparator: Comparator<Value>
+  public var comparator: Comparator
 
-  public static func == (lhs: EquatableContainer<Value>, rhs: EquatableContainer<Value>) -> Bool {
+  public static func == (lhs: Equated<Value>, rhs: Equated<Value>) -> Bool {
     and(
       lhs.comparator.compare(lhs.wrappedValue, rhs.wrappedValue),
       rhs.comparator.compare(rhs.wrappedValue, lhs.wrappedValue)
@@ -33,7 +33,7 @@ public struct EquatableContainer<Value>: Equatable {
   }
 }
 
-extension EquatableContainer where Value: Equatable {
+extension Equated where Value: Equatable {
   public init<T>() where Value == T? {
     self.init(wrappedValue: .none)
   }
@@ -43,7 +43,7 @@ extension EquatableContainer where Value: Equatable {
   }
 }
 
-extension EquatableContainer: Error where Value: Error {
+extension Equated: Error where Value: Error {
   public init(_ wrappedValue: Value) {
     self.init(wrappedValue: wrappedValue)
   }
@@ -51,20 +51,20 @@ extension EquatableContainer: Error where Value: Error {
   public init(wrappedValue: Value) {
     self.init(
       wrappedValue: wrappedValue,
-      compare: .property(\.localizedDescription)
+      compare: .localizedDescription
     )
   }
   
   public var localizedDescription: String { wrappedValue.localizedDescription }
 }
 
-extension EquatableContainer: Hashable where Value: Hashable {
+extension Equated: Hashable where Value: Hashable {
   public func hash(into hasher: inout Hasher) {
     wrappedValue.hash(into: &hasher)
   }
 }
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-extension EquatableContainer: Identifiable where Value: Identifiable {
+extension Equated: Identifiable where Value: Identifiable {
   public var id: Value.ID { wrappedValue.id }
 }

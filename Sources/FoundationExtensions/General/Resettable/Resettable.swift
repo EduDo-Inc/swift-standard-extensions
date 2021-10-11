@@ -16,20 +16,28 @@ public class Resettable<Object> {
   
   // MARK: - Undo/Redo
   
-  public func undo() {
+  @discardableResult
+  public func undo() -> Resettable {
     pointer = pointer.undo(&object)
+    return self
   }
   
-  public func redo() {
+  @discardableResult
+  public func redo() -> Resettable {
     pointer = pointer.redo(&object)
+    return self
   }
   
-  public func reset() {
-    while pointer !== pointer.undo(&object) { }
+  @discardableResult
+  public func reset() -> Resettable {
+    while pointer !== undo().pointer {}
+    return self
   }
   
-  public func restore() {
-    while pointer !== pointer.redo(&object) { }
+  @discardableResult
+  public func restore() -> Resettable {
+    while pointer !== redo().pointer {}
+    return self
   }
   
   // MARK: - Unsafe modification

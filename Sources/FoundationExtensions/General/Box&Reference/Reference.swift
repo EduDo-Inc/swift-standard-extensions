@@ -114,12 +114,8 @@ public struct Reference<Value> {
   @usableFromInline
   internal var _write: (Value) -> Void
   
-  internal var subject: CombineSubjectBackport<Value, Never>
-  
-  #if canImport(Combine)
-  @available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-  public var publisher: AnyPublisher<Value, Never> { subject.publisher }
-  #endif
+  internal var subject: ReferenceSubject<Value>
+  public var publisher: AnyPublisher<Value, Never> { subject.eraseToAnyPublisher() }
 
   @inlinable
   public init(wrappedValue: Value) {
@@ -134,13 +130,7 @@ public struct Reference<Value> {
     read: @escaping () -> Value,
     write: @escaping (Value) -> Void
   ) {
-    let subject: CombineSubjectBackport<Value, Never> = {
-      if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *) {
-        return .init(CurrentValueSubject<Value, Never>(read()))
-      } else {
-        return .unsupported()
-      }
-    }()
+    let subject = ReferenceSubject(read: read)
 
     let _write: (Value) -> Void = { newValue in
       write(newValue)
@@ -174,16 +164,16 @@ public struct Reference<Value> {
   public var readonly: ReadonlyReference<Value> { ReadonlyReference(read: _read) }
 
   @inlinable
-  public subscript<LocalValue>(dynamicMember keyPath: KeyPath<Value, LocalValue>) -> Reference<
-    LocalValue
-  > {
+  public subscript<LocalValue>(
+    dynamicMember keyPath: KeyPath<Value, LocalValue>
+  ) -> Reference<LocalValue> {
     .readonly { wrappedValue[keyPath: keyPath] }
   }
 
   @inlinable
-  public subscript<LocalValue>(dynamicMember keyPath: WritableKeyPath<Value, LocalValue>)
-    -> Reference<LocalValue>
-  {
+  public subscript<LocalValue>(
+    dynamicMember keyPath: WritableKeyPath<Value, LocalValue>
+  ) -> Reference<LocalValue> {
     Reference<LocalValue>(
       read: { _read()[keyPath: keyPath] },
       write: { localValue in
@@ -250,3 +240,38 @@ extension ReferenceProvider {
 }
 
 extension NSObject: ReferenceProvider {}
+
+class ReferenceSubject<Output> {
+  var inner: PassthroughSubject<Output, Never> = .init()
+  var read: () -> Output
+  
+  init(read: @escaping () -> Output) {
+    self.read = read
+  }
+}
+
+@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+extension ReferenceSubject: Subject {
+  typealias Failure = Never
+  
+  func send(_ value: Output) {
+    inner.send(value)
+  }
+  
+  func send(subscription: Subscription) {
+    inner.send(subscription: subscription)
+  }
+  
+  func send(completion: Subscribers.Completion<Failure>) {
+    inner.send(completion: completion)
+  }
+}
+
+@available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+extension ReferenceSubject: Publisher {
+  func receive<S>(subscriber: S)
+  where S : Subscriber, Failure == S.Failure, Output == S.Input {
+    inner.receive(subscriber: subscriber)
+    subscriber.receive(read())
+  }
+}

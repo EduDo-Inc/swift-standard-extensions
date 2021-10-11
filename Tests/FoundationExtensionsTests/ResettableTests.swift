@@ -178,32 +178,76 @@ final class ResettableTests: XCTestCase {
       var value: Int = 0
     }
     
-    var array = [Object(), Object()]
-    let resettable = Resettable(array)
+    var first = Object(value: 0)
+    var second = Object(value: 1)
+    let resettable = Resettable([first, second])
+    
     resettable.collection.swapAt(0, 1)
     
-    resettable.collection[safe: 0].value(1)
+    XCTAssertEqual(resettable.wrappedValue, [second, first])
     
-    array.swapAt(0, 1)
-    array[0].value = 1
-    XCTAssertEqual(resettable.wrappedValue, array)
+    resettable.collection[safe: 0].value(0)
+    second.value = 0
     
-    resettable.undo()
-    array[0].value = 0
-    XCTAssertEqual(resettable.wrappedValue, array)
+    XCTAssertEqual(resettable.wrappedValue, [second, first])
     
     resettable.undo()
-    array.swapAt(1, 0)
-    XCTAssertEqual(resettable.wrappedValue, array)
+    second.value = 1
+    XCTAssertEqual(resettable.wrappedValue, [second, first])
+    
+    resettable.undo()
+    XCTAssertEqual(resettable.wrappedValue, [first, second])
     
     resettable.redo()
-    array.swapAt(0, 1)
-    XCTAssertEqual(resettable.wrappedValue, array)
+    XCTAssertEqual(resettable.wrappedValue, [second, first])
     
-    resettable.collection[safe: 0].value(2)
+    let third = Object(value: -1)
+    resettable
+      .collection.swapAt(0, 1)
+      .collection[safe: 0].value(2)
+      .collection.append(third)
+      ._modify(
+        using: { $0.reverse() },
+        undo: { $0.reverse() }
+      )
+    first.value = 2
+    
+    XCTAssertEqual(resettable.wrappedValue, [third, second, first])
+    
+    resettable.redo().redo().redo() // no changes
+    
+    XCTAssertEqual(resettable.wrappedValue, [third, second, first])
+    
+    resettable.undo()
+    
+    XCTAssertEqual(resettable.wrappedValue, [first, second, third])
+    
+    resettable.undo()
+    
+    XCTAssertEqual(resettable.wrappedValue, [first, second])
+    
     resettable.redo()
-    resettable.redo()
-    array[0].value = 2
-    XCTAssertEqual(resettable.wrappedValue, array)
+    
+    XCTAssertEqual(resettable.wrappedValue, [first, second, third])
+    
+    resettable
+      .collection.remove(at: 2)
+      .collection.remove(at: 1)
+      .collection.remove(at: 0)
+    
+    resettable.undo().undo().undo()
+    
+    XCTAssertEqual(resettable.wrappedValue, [first, second, third])
+    
+    resettable.restore()
+    
+    XCTAssertEqual(resettable.wrappedValue, [])
+    
+    resettable.reset()
+    
+    first.value = 0
+    second.value = 1
+    
+    XCTAssertEqual(resettable.wrappedValue, [first, second])
   }
 }

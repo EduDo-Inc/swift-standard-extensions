@@ -9,14 +9,12 @@
 extension Collection {
   /// - Complexity: *O(1)*
   @inlinable
-  @inline(__always)
   public var isNotEmpty: Bool { !self.isEmpty }
 }
 
 extension Array {
   /// - Complexity: *O(1)*
   @inlinable
-  @inline(__always)
   public subscript(safe index: Index?) -> Element? {
     get {
       guard let index = index else { return nil }
@@ -30,7 +28,6 @@ extension Array {
   
   /// - Complexity: *O(1)*
   @inlinable
-  @inline(__always)
   public subscript(safe index: Index) -> Element? {
     get {
       guard

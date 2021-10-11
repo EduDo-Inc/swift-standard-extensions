@@ -59,7 +59,7 @@ let package = Package(
     .package(
       name: "swift-prelude",
       url: .github("capturecontext/swift-prelude"),
-      .upToNextMinor(from: "0.0.1")
+      .branch("develop")
     )
   ],
   targets: [

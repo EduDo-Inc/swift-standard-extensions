@@ -47,23 +47,31 @@ final class ReferenceTests: XCTestCase {
     XCTAssertEqual(object.value, handledOnChange)
     XCTAssertEqual(numberOfTrackedSets, 2)
     XCTAssertEqual(numberOfTrackedChanges, 1)
+  }
+  
+  func testReferenceObservationCombine() {
+    class Object: ReferenceProvider {
+      var value = 0
+    }
     
-    guard
-      #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-    else { return }
+    let object = Object()
+    let reference = object.reference(for: \.value)
+    let trackedReference = reference
+      .onChange { _ in }
+      .onSet { _ in }
     
-    object.value = 0
+    object.value = -1
     XCTAssertEqual(object.value, reference.wrappedValue)
     
     var handledOnPublish: Int?
     var numberOfPublishedChanges = 0
-    var cancellable = reference.publisher.sink {
+    var cancellable = reference.publisher.sink { // called immediately
       handledOnPublish = $0
       numberOfPublishedChanges += 1
     }
     
     // The publisher emits an initial value
-    XCTAssertEqual(handledOnPublish, 0)
+    XCTAssertEqual(handledOnPublish, -1)
     XCTAssertEqual(numberOfPublishedChanges, 1)
     
     object.value = 1
@@ -72,7 +80,8 @@ final class ReferenceTests: XCTestCase {
     
     // Reference does not handle direct object changes
     // but the publisher emits an initial value
-    XCTAssertEqual(handledOnPublish, 0)
+    // (which was set on `sink` subscription event)
+    XCTAssertEqual(handledOnPublish, -1)
     XCTAssertEqual(numberOfPublishedChanges, 1)
     
     reference.wrappedValue = 2

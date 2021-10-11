@@ -1,4 +1,5 @@
 import CocoaAliases
+import FoundationExtensions
 
 /// The protocol allows to track when the view is loaded using @CustomView propertyWrapper
 public protocol CustomLoadableView: CocoaView {

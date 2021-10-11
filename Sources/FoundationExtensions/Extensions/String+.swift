@@ -2,6 +2,7 @@ import Foundation
 
 extension String {
   /// Returns ranges of all occrances of subsring in string
+  @inlinable
   public func ranges(
     of substring: String,
     options: CompareOptions = [],
