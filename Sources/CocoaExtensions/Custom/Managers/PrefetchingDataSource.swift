@@ -24,14 +24,14 @@ extension PrefetchingDataSource:
     _ tableView: UITableView,
     prefetchRowsAt indexPaths: [IndexPath]
   ) {
-    cancelPrefetchRequestSubject.send(indexPaths)
+    prefetchRequestSubject.send(indexPaths)
   }
 
   public func collectionView(
     _ collectionView: UICollectionView,
     prefetchItemsAt indexPaths: [IndexPath]
   ) {
-    cancelPrefetchRequestSubject.send(indexPaths)
+    prefetchRequestSubject.send(indexPaths)
   }
 
   public func tableView(
@@ -48,6 +48,7 @@ extension PrefetchingDataSource:
     cancelPrefetchRequestSubject.send(indexPaths)
   }
 }
+
 #elseif os(macOS)
 extension PrefetchingDataSource: NSCollectionViewPrefetching {
   public func collectionView(

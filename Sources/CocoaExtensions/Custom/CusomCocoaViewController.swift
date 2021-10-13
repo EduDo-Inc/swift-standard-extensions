@@ -76,10 +76,6 @@ open class CustomCocoaViewController: CocoaViewController {
     _onDismiss()
   }
   
-  public convenience init() {
-    self.init(nibName: nil, bundle: nil)
-  }
-  
   public override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
     super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
     self._commonInit()
