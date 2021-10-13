@@ -44,7 +44,7 @@ let package = Package(
     .package(
       name: "cocoa-aliases",
       url: .github("capturecontext/cocoa-aliases"),
-      .upToNextMajor(from: "1.0.0")
+      .branch("main")
     ),
     .package(
       name: "swift-declarative-configuration",
