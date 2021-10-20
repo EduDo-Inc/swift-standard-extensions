@@ -49,7 +49,7 @@ let package = Package(
     .package(
       name: "swift-declarative-configuration",
       url: .github("capturecontext/swift-declarative-configuration"),
-      .upToNextMinor(from: "0.0.1")
+      .upToNextMinor(from: "0.3.0")
     ),
     .package(
       name: "weak",
