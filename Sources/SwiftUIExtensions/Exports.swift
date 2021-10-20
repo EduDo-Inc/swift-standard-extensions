@@ -1,6 +1,4 @@
-#if canImport(SwiftUIX) && canImport(SwiftUI)
-@_exported import SwiftUIX
-#elseif canImport(SwiftUI)
+#if canImport(SwiftUI)
 @_exported import SwiftUI
 #endif
 
