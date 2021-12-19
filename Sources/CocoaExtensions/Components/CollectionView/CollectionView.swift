@@ -2,20 +2,6 @@
 import CocoaAliases
 import Prelude
 
-open class CustomCocoaCollectionView: CocoaCollectionView {
-  public override init(frame: CGRect, collectionViewLayout layout: CocoaCollectionViewLayout) {
-    super.init(frame: frame, collectionViewLayout: layout)
-    self._commonInit()
-  }
-  
-  public required init?(coder: NSCoder) {
-    super.init(coder: coder)
-    self._commonInit()
-  }
-  
-  open func _commonInit() {}
-}
-
 public final class CollectionView<
   CellView: CocoaView,
   SupplimentaryView: CocoaView
@@ -42,8 +28,8 @@ public final class CollectionView<
     set { super.delegate = newValue }
   }
   
-  public override func _commonInit() {
-    super._commonInit()
+  public override func _init() {
+    super._init()
     super.dataSource = customDataSource
     super.prefetchDataSource = customPrefetchDataSource
     self.registerReusableItemTypes()

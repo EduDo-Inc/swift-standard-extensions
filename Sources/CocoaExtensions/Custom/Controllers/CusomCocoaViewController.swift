@@ -2,7 +2,7 @@ import DeclarativeConfiguration
 import CocoaAliases
 
 #if os(iOS)
-open class CustomCocoaViewController: CocoaViewController {
+open class CustomCocoaViewController: CocoaViewController, CustomCocoaViewControllerProtocol {
   private(set) open var isVisible = false
   
   @Handler<Void>
@@ -78,16 +78,16 @@ open class CustomCocoaViewController: CocoaViewController {
   
   public override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
     super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-    self._commonInit()
+    self._init()
   }
   
   public required init?(coder: NSCoder) {
     super.init(coder: coder)
-    self._commonInit()
+    self._init()
   }
   
   /// Only for `override` purposes, do not call directly
-  open func _commonInit() {}
+  open func _init() {}
 }
 #elseif os(macOS)
 open class CustomCocoaViewController: CocoaViewController {
@@ -156,18 +156,18 @@ open class CustomCocoaViewController: CocoaViewController {
     super.loadView()
   }
   
-  /// Use `override _commonInit` instead of overriding this initializer
+  /// Use `override _init` instead of overriding this initializer
   public override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
     super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-    self._commonInit()
+    self._init()
   }
   
-  /// Use `override _commonInit` instead of overriding this initializer
+  /// Use `override _init` instead of overriding this initializer
   public required init?(coder: NSCoder) {
     super.init(coder: coder)
-    self._commonInit()
+    self._init()
   }
   /// Only for `override` purposes, do not call directly
-  open func _commonInit() {}
+  open func _init() {}
 }
 #endif

@@ -52,14 +52,19 @@ let package = Package(
       .upToNextMinor(from: "0.3.0")
     ),
     .package(
-      name: "weak",
-      url: .github("capturecontext/weak"),
-      .upToNextMajor(from: "1.0.0")
+      name: "swift-capture",
+      url: .github("capturecontext/swift-capture"),
+      .upToNextMajor(from: "2.0.0")
     ),
     .package(
       name: "swift-prelude",
       url: .github("capturecontext/swift-prelude"),
       .branch("develop")
+    ),
+    .package(
+      name: "swift-custom-dump",
+      url: "https://github.com/pointfreeco/swift-custom-dump",
+      .upToNextMinor(from: "0.2.1")
     )
   ],
   targets: [
@@ -85,8 +90,12 @@ let package = Package(
           package: "combine-extensions"
         ),
         .product(
-          name: "Weak",
-          package: "weak"
+          name: "Capture",
+          package: "swift-capture"
+        ),
+        .product(
+          name: "CustomDump",
+          package: "swift-custom-dump"
         )
       ]
     ),

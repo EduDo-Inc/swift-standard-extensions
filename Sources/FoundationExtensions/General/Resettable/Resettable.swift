@@ -1,4 +1,25 @@
 import DeclarativeConfiguration
+import CustomDump
+
+extension Resettable {
+  @available(
+  *, deprecated,
+  message: "Might be removed due to Value type constraint, which makes the behavior unstable, consider re-implementing this feature locally if you need"
+  )
+  public struct ValuesDump {
+    public let items: [Object]
+    public let currentIndex: Int
+  }
+}
+
+extension Resettable {
+  public enum OperationBehavior {
+    case `default`
+    case amend
+    case insert
+    case inject
+  }
+}
 
 @propertyWrapper
 @dynamicMemberLookup
@@ -16,6 +37,86 @@ public class Resettable<Object> {
   
   // MARK: - Undo/Redo
   
+  /// Dump values for __ValueTypes__
+  @available(
+  *, deprecated,
+  message: "Might be removed due to Value type constraint, which makes the behavior unstable, consider re-implementing this feature locally if you need"
+  )
+  public func valuesDump() -> ValuesDump {
+    let _pointer = pointer
+    while pointer !== undo().pointer {}
+    var buffer: [Object] = [wrappedValue]
+    var indexBuffer = 0
+    var currentIndex = 0
+    
+    while pointer !== redo().pointer {
+      indexBuffer += 1
+      let isCurrent = _pointer === pointer
+      buffer.append(wrappedValue)
+      if isCurrent { currentIndex = indexBuffer  }
+    }
+    
+    if _pointer !== pointer {
+      while _pointer !== undo().pointer {}
+    }
+    
+    return ValuesDump(items: buffer, currentIndex: currentIndex)
+  }
+  
+  public func dump() {
+    var buffer = ""
+    self.dump(to: &buffer)
+    print(buffer)
+  }
+  
+  public func dump<TargetStream: TextOutputStream>(
+    to stream: inout TargetStream
+  ) {
+    let _pointer = pointer
+    while pointer !== undo().pointer {}
+    var buffer: [String] = []
+    var initialBuffer = ""
+    customDump(wrappedValue, to: &initialBuffer)
+    buffer.append(#"""""#)
+    buffer.append("\n")
+    buffer.append(
+      initialBuffer.components(separatedBy: .newlines)
+        .map { "  " + $0 }
+        .joined(separator: "\n")
+    )
+    buffer.append("\n")
+    
+    var previous = wrappedValue
+    
+    while pointer !== redo().pointer {
+      let isCurrent = _pointer === pointer
+      var dump = ""
+      customDump(diff(previous, wrappedValue), to: &dump)
+      if dump == "nil" {
+        buffer.append("\n  No state changes \n")
+      } else {
+        var _dump = dump.trimmingCharacters(in: [#"""#])
+        if isCurrent {
+          if _dump.hasPrefix("\n  ") {
+            _dump.removeFirst(3)
+          }
+          buffer.append("\n  >>> ".appending(_dump))
+        } else {
+          buffer.append(_dump)
+        }
+      }
+      previous = wrappedValue
+    }
+    
+    buffer.append(#"""""#)
+    
+    stream.write(buffer.joined())
+    
+    if _pointer !== pointer {
+      while _pointer !== undo().pointer {}
+    }
+  }
+  
   @discardableResult
   public func undo() -> Resettable {
     pointer = pointer.undo(&object)
@@ -25,6 +126,18 @@ public class Resettable<Object> {
   @discardableResult
   public func redo() -> Resettable {
     pointer = pointer.redo(&object)
+    return self
+  }
+  
+  @discardableResult
+  public func undo(_ count: Int) -> Resettable {
+    for _ in 0..<count { undo() }
+    return self
+  }
+  
+  @discardableResult
+  public func redo(_ count: Int) -> Resettable {
+    for _ in 0..<count { redo() }
     return self
   }
   
@@ -52,19 +165,22 @@ public class Resettable<Object> {
   
   @discardableResult
   public func _modify<Value>(
+    operation: OperationBehavior = .default,
     _ keyPath: FunctionalKeyPath<Object, Value>,
     using action: @escaping (inout Value) -> Void
   ) -> Resettable {
     __modify {
       pointer.apply(
         modification: action,
-        for: &object, keyPath
+        for: &object, keyPath,
+        operation: operation
       )
     }
   }
   
   @discardableResult
   public func _modify<Value>(
+    operation: OperationBehavior = .default,
     _ keyPath: FunctionalKeyPath<Object, Value>,
     using action: @escaping (inout Value) -> Void,
     undo: @escaping (inout Value) -> Void
@@ -73,13 +189,15 @@ public class Resettable<Object> {
       pointer.apply(
         modification: action,
         for: &object, keyPath,
-        undo: undo
+        undo: undo,
+        operation: operation
       )
     }
   }
   
   @discardableResult
   public func _modify(
+    operation: OperationBehavior = .default,
     using action: @escaping (inout Object) -> Void,
     undo: @escaping (inout Object) -> Void
   ) -> Resettable {
@@ -87,7 +205,8 @@ public class Resettable<Object> {
       pointer.apply(
         modification: action,
         undo: undo,
-        for: &object
+        for: &object,
+        operation: operation
       )
     }
   }
@@ -193,14 +312,22 @@ extension Resettable {
     func apply<Value>(
       modification action: @escaping (inout Value) -> Void,
       for object: inout Object,
-      _ keyPath: FunctionalKeyPath<Object, Value>
+      _ keyPath: FunctionalKeyPath<Object, Value>,
+      operation: OperationBehavior = .default
     ) -> Pointer {
+      var didPrepareObjectForAmend = false
+      if operation == .amend {
+        self._undo?(&object)
+        didPrepareObjectForAmend = true
+      }
       let valueSnapshot = keyPath.extract(from: object)
       return apply(
         modification: action,
         for: &object,
         keyPath,
-        undo: { $0 = valueSnapshot }
+        undo: { $0 = valueSnapshot },
+        operation: operation,
+        didPrepareObjectForAmend: didPrepareObjectForAmend
       )
     }
     
@@ -208,7 +335,9 @@ extension Resettable {
       modification action: @escaping (inout Value) -> Void,
       for object: inout Object,
       _ keyPath: FunctionalKeyPath<Object, Value>,
-      undo: @escaping (inout Value) -> Void
+      undo: @escaping (inout Value) -> Void,
+      operation: OperationBehavior = .default,
+      didPrepareObjectForAmend: Bool = false
     ) -> Pointer {
       return apply(
         modification: { object in
@@ -229,18 +358,52 @@ extension Resettable {
             in: &object
           )
         },
-        for: &object
+        for: &object,
+        operation: operation,
+        didPrepareObjectForAmend: didPrepareObjectForAmend
       )
     }
     
     func apply(
       modification: @escaping (inout Object) -> Void,
       undo: @escaping (inout Object) -> Void,
-      for object: inout Object
+      for object: inout Object,
+      operation: OperationBehavior = .default,
+      didPrepareObjectForAmend: Bool = false
     ) -> Pointer {
+      if operation == .inject {
+        modification(&object)
+        
+        let prevUndo = self._undo
+        self._undo = { object in
+          undo(&object)
+          prevUndo?(&object)
+        }
+        
+        let prevRedo = self.prev?._redo
+        self.prev?._redo = { object in
+          prevRedo?(&object)
+          modification(&object)
+        }
+        
+        return self
+      }
+      
+      if operation == .amend {
+        if !didPrepareObjectForAmend {
+          self._undo?(&object)
+        }
+        modification(&object)
+        self._undo = undo
+        self.prev?._redo = modification
+        return self
+      }
+      
       let pointer = Pointer(
         prev: self,
-        undo: undo
+        next: operation == .insert ? self.next : nil,
+        undo: undo,
+        redo: operation == .insert ? self._redo : nil
       )
       
       modification(&object)
@@ -331,21 +494,22 @@ extension Resettable {
     // MARK: Modification
     
     @discardableResult
-    public func callAsFunction(_ value: Value) -> Resettable {
-      return self.callAsFunction { $0 = value }
+    public func callAsFunction(_ value: Value, operation: OperationBehavior = .default) -> Resettable {
+      return self.callAsFunction(operation) { $0 = value }
     }
     
     @discardableResult
-    public func callAsFunction(_ action: @escaping (inout Value) -> Void) -> Resettable {
-      return resettable._modify(keyPath, using: action)
+    public func callAsFunction(_ operation: OperationBehavior = .default, _ action: @escaping (inout Value) -> Void) -> Resettable {
+      return resettable._modify(operation: operation, keyPath, using: action)
     }
     
     @discardableResult
     public func callAsFunction(
+      _ operation: OperationBehavior = .default,
       _ action: @escaping (inout Value) -> Void,
       undo: @escaping (inout Value) -> Void
     ) -> Resettable {
-      return resettable._modify(keyPath, using: action, undo: undo)
+      return resettable._modify(operation: operation, keyPath, using: action, undo: undo)
     }
     
     

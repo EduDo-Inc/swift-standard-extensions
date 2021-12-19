@@ -26,7 +26,7 @@ public protocol CustomLoadableView: CocoaView {
 ///       .textAlignment(.center)
 ///     }
 ///
-///     override func _commonInit() {
+///     override func _init() {
 ///       addSubview(label)
 ///     }
 ///
