@@ -34,12 +34,4 @@ extension Swift.Result {
       return .success(closure(error))
     }
   }
-
 }
-
-//extension Swift.Result where Failure == Swift.Error {
-//  @inlinable
-//  public init<E>(_ closure: () throws -> Result<Success, E>) {
-//    do { self = try closure().eraseError() } catch { self = .failure(error) }
-//  }
-//}

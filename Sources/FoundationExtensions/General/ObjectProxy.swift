@@ -25,7 +25,7 @@ public struct ObjectProxy<EnclosingType: AnyObject, Value> {
     }
   }
 
-  @available(*, unavailable, message: "@Proxy can only be applied to classes")
+  @available(*, unavailable, message: "@ObjectProxy can only be applied to classes")
   public var wrappedValue: Value {
     get { fatalError() }
     set { fatalError() }
