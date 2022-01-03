@@ -1,4 +1,4 @@
-#if os(iOS)
+#if canImport(iOS)
 import UIKit
 
 public struct Haptic {

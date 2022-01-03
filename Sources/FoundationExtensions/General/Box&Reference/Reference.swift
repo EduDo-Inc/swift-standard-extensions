@@ -196,7 +196,7 @@ extension Reference {
     )
   }
   
-  public func onSet(preform action: @escaping (Value) -> Void) -> Reference {
+  public func onSet(perform action: @escaping (Value) -> Void) -> Reference {
     Reference(
       read: _read,
       write: { newValue in
@@ -206,7 +206,8 @@ extension Reference {
     )
   }
   
-  public func onChange(preform action: @escaping (Value) -> Void) -> Reference where Value: Equatable {
+  public func onChange(perform action: @escaping (Value) -> Void) -> Reference
+  where Value: Equatable {
     Reference(
       read: _read,
       write: {

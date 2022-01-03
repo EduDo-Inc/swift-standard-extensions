@@ -1,3 +1,4 @@
+#if !os(watchOS)
 import CocoaAliases
 
 extension CocoaApplication {
@@ -5,3 +6,4 @@ extension CocoaApplication {
       windows.first(where: { $0.isKeyWindow })
   }
 }
+#endif

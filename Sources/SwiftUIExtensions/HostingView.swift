@@ -1,4 +1,4 @@
-#if os(iOS)
+#if canImport(UIKit) && !os(watchOS)
 import SwiftUI
 import UIKit
 
@@ -55,7 +55,7 @@ extension UIHostingView {
     return rootView
   }
 }
-#elseif os(macOS)
+#elseif canImport(AppKit)
 import SwiftUI
 import AppKit
 

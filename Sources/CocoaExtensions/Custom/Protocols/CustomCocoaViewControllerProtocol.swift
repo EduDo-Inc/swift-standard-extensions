@@ -1,3 +1,4 @@
+#if !os(watchOS)
 import CocoaAliases
 
 public protocol CustomCocoaViewControllerProtocol:
@@ -13,3 +14,4 @@ public protocol CustomCocoaViewControllerProtocol:
   var onViewWillLayout: Handler<Void>.Container { get set }
   var onViewDidLayout: Handler<Void>.Container { get set }
 }
+#endif

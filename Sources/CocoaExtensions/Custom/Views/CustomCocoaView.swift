@@ -1,3 +1,4 @@
+#if !os(watchOS)
 import CocoaAliases
 
 open class CustomCocoaView: CocoaView, CustomCocoaViewProtocol {
@@ -16,3 +17,4 @@ open class CustomCocoaView: CocoaView, CustomCocoaViewProtocol {
   /// Only for `override` purposes, do not call directly
   open func _init() {}
 }
+#endif

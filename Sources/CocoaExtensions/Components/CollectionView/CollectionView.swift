@@ -1,4 +1,4 @@
-#if os(iOS)
+#if canImport(UIKit) && !os(watchOS)
 import CocoaAliases
 import Prelude
 

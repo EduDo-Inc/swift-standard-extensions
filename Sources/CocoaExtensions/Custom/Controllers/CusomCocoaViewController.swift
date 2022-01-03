@@ -1,7 +1,7 @@
 import DeclarativeConfiguration
 import CocoaAliases
 
-#if os(iOS)
+#if canImport(UIKit) && !os(watchOS)
 open class CustomCocoaViewController: CocoaViewController, CustomCocoaViewControllerProtocol {
   private(set) open var isVisible = false
   
@@ -89,7 +89,7 @@ open class CustomCocoaViewController: CocoaViewController, CustomCocoaViewContro
   /// Only for `override` purposes, do not call directly
   open func _init() {}
 }
-#elseif os(macOS)
+#elseif canImport(AppKit)
 open class CustomCocoaViewController: CocoaViewController {
   private(set) open var isVisible = false
   

@@ -1,3 +1,4 @@
+#if !os(watchOS)
 import CocoaAliases
 
 extension CocoaCollectionViewLayout {
@@ -9,3 +10,4 @@ extension CocoaCollectionViewLayout {
     return layout
   }
 }
+#endif

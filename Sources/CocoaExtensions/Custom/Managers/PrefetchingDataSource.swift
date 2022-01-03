@@ -15,7 +15,7 @@ public class PrefetchingDataSource: NSObject {
   }
 }
 
-#if os(iOS)
+#if canImport(UIKit) && !os(watchOS)
 extension PrefetchingDataSource:
   UICollectionViewDataSourcePrefetching,
   UITableViewDataSourcePrefetching
@@ -49,7 +49,7 @@ extension PrefetchingDataSource:
   }
 }
 
-#elseif os(macOS)
+#elseif canImport(AppKit)
 extension PrefetchingDataSource: NSCollectionViewPrefetching {
   public func collectionView(
     _ collectionView: NSCollectionView,

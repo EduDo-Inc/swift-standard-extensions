@@ -12,11 +12,13 @@ extension ReuseIDProvidingType {
   public static var reuseID: String { .init(reflecting: self) }
 }
 
+#if !os(watchOS)
 extension CocoaCollectionReusableView: ReuseIDProvidingType {}
 extension CocoaCollectionViewCell: ReuseIDProvidingType {}
 extension CocoaTableViewCell: ReuseIDProvidingType {}
+#endif
 
-#if os(iOS)
+#if canImport(UIKit) && !os(watchOS)
 extension CocoaTableView {
   public func register<Cell: CocoaTableViewCell>(_ type: Cell.Type) {
     register(type, forCellReuseIdentifier: Cell.reuseID)
@@ -29,18 +31,19 @@ extension CocoaTableView {
 }
 #endif
 
+#if !os(watchOS)
 extension CocoaCollectionView {
   public func registerSupplimentaryItem<
     SupplimentaryItem:
       CocoaCollectionReusableView
   >(_ type: SupplimentaryItem.Type?, ofKind kind: String) {
-    #if os(iOS)
+    #if canImport(UIKit)
     register(
       type,
       forSupplementaryViewOfKind: kind,
       withReuseIdentifier: SupplimentaryItem.reuseID
     )
-    #elseif os(macOS)
+    #elseif canImport(AppKit)
     register(
       type,
       forSupplementaryViewOfKind: kind,
@@ -60,14 +63,14 @@ extension CocoaCollectionView {
   }
   
   public func register<Cell: CocoaCollectionViewCell>(_ type: Cell.Type?) {
-    #if os(iOS)
+    #if canImport(UIKit)
     register(type, forCellWithReuseIdentifier: Cell.reuseID)
-    #elseif os(macOS)
+    #elseif canImport(AppKit)
     register(type, forItemWithIdentifier: NSUserInterfaceItemIdentifier(Cell.reuseID))
     #endif
   }
 
-  #if os(iOS)
+  #if canImport(UIKit)
   public func dequeueSupplimentaryItem<
     SupplimentaryItem: ReuseIDProvidingType
   >(_ type: SupplimentaryItem.Type, ofKind kind: String, at indexPath: IndexPath)
@@ -98,3 +101,4 @@ extension CocoaCollectionView {
   ) -> Cell! { dequeueReusableCell(withReuseIdentifier: Cell.reuseID, for: indexPath) as? Cell }
   #endif
 }
+#endif

@@ -1,3 +1,4 @@
+#if !os(watchOS)
 import CocoaAliases
 import FoundationExtensions
 
@@ -121,3 +122,4 @@ extension CocoaViewController {
     return true
   }
 }
+#endif

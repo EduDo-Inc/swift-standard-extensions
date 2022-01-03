@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Prelude
 
 @propertyWrapper
 public struct Equated<Value>: Equatable {
@@ -26,10 +27,8 @@ public struct Equated<Value>: Equatable {
   public var comparator: Comparator
 
   public static func == (lhs: Equated<Value>, rhs: Equated<Value>) -> Bool {
-    and(
-      lhs.comparator.compare(lhs.wrappedValue, rhs.wrappedValue),
-      rhs.comparator.compare(rhs.wrappedValue, lhs.wrappedValue)
-    )
+    lhs.comparator.compare(lhs.wrappedValue, rhs.wrappedValue)
+      && rhs.comparator.compare(rhs.wrappedValue, lhs.wrappedValue)
   }
 }
 

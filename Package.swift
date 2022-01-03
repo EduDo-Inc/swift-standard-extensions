@@ -3,14 +3,18 @@
 import PackageDescription
 
 extension String {
-  static func github(_ path: String) -> String { "https://github.com/\(path).git" }
+  static func github(_ path: String) -> String {
+    return "https://github.com/\(path).git"
+  }
 }
 
 let package = Package(
   name: "swift-standard-extensions",
   platforms: [
+    .macOS(.v10_15),
     .iOS(.v13),
-    .macOS(.v10_15)
+    .tvOS(.v13),
+    .watchOS(.v6)
   ],
   products: [
     .library(
@@ -34,17 +38,17 @@ let package = Package(
     .package(
       name: "combine-cocoa",
       url: .github("capturecontext/combine-cocoa"),
-      .upToNextMinor(from: "0.0.1")
+      .upToNextMinor(from: "0.0.2")
     ),
     .package(
       name: "combine-extensions",
       url: .github("capturecontext/combine-extensions"),
-      .upToNextMinor(from: "0.0.1")
+      .upToNextMinor(from: "0.0.3")
     ),
     .package(
       name: "cocoa-aliases",
       url: .github("capturecontext/cocoa-aliases"),
-      .branch("main")
+      .upToNextMajor(from: "2.0.2")
     ),
     .package(
       name: "swift-declarative-configuration",

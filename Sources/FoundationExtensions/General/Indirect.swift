@@ -75,6 +75,13 @@ extension Indirect: Comparable where Value: Comparable {
     lhs.wrappedValue < rhs.wrappedValue
   }
 }
+
+extension Indirect: Hashable where Value: Hashable {
+  public func hash(into hasher: inout Hasher) {
+    wrappedValue.hash(into: &hasher)
+  }
+}
+
 extension Indirect: Equatable where Value: Equatable {
   public static func ==(lhs: Self, rhs: Self) -> Bool {
     lhs.wrappedValue == rhs.wrappedValue

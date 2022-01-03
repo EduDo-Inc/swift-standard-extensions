@@ -1,8 +1,10 @@
 import Foundation
+import Capture
+import DeclarativeConfiguration
 
 @propertyWrapper
 @dynamicMemberLookup
-final public class Box<Content> {
+final public class Box<Content>: Weakifiable {
   public var content: Content
 
   @inlinable
