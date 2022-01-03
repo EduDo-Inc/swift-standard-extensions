@@ -68,7 +68,7 @@ let package = Package(
     .package(
       name: "swift-custom-dump",
       url: "https://github.com/pointfreeco/swift-custom-dump",
-      .upToNextMinor(from: "0.2.1")
+      .upToNextMajor(from: "0.3.0")
     ),
   ],
   targets: [
