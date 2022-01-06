@@ -2,8 +2,20 @@ import DeclarativeConfiguration
 import CocoaAliases
 
 #if canImport(UIKit) && !os(watchOS)
-open class CustomCocoaViewController: CocoaViewController, CustomCocoaViewControllerProtocol {
+extension CustomCocoaViewController: NavigationControllerDynamicOverridable {}
+
+open class CustomCocoaViewController:
+  CocoaViewController,
+  CustomCocoaViewControllerProtocol
+{
   private(set) open var isVisible = false
+  
+  @OptionalDataSource<Void, UINavigationController?>
+  public var overrideNavigationController
+  
+  override open var navigationController: UINavigationController? {
+    _overrideNavigationController() ?? super.navigationController
+  }
   
   @Handler<Void>
   public var onDismiss
@@ -90,7 +102,10 @@ open class CustomCocoaViewController: CocoaViewController, CustomCocoaViewContro
   open func _init() {}
 }
 #elseif canImport(AppKit)
-open class CustomCocoaViewController: CocoaViewController {
+open class CustomCocoaViewController:
+  CocoaViewController,
+  CustomCocoaViewControllerProtocol
+{
   private(set) open var isVisible = false
   
   @Handler<Void>

@@ -1,8 +1,21 @@
 #if canImport(UIKit) && !os(watchOS)
 import UIKit
+import DeclarativeConfiguration
 
-open class CustomNavigationController: UINavigationController, CustomCocoaViewControllerProtocol {
+extension CustomNavigationController: NavigationControllerDynamicOverridable {}
+
+open class CustomNavigationController:
+  UINavigationController,
+  CustomCocoaViewControllerProtocol
+{
   private(set) open var isVisible = false
+  
+  @OptionalDataSource<Void, UINavigationController?>
+  public var overrideNavigationController
+  
+  override open var navigationController: UINavigationController? {
+    _overrideNavigationController() ?? super.navigationController
+  }
   
   @Handler<Void>
   public var onDismiss

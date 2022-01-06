@@ -355,7 +355,7 @@ final class ResettableTests: XCTestCase {
       var value: Int = 0
     }
     
-    var first = Object(value: 0)
+    let first = Object(value: 0)
     var second = Object(value: 1)
     let third = Object(value: 2)
     let resettable = Resettable([first, second])
