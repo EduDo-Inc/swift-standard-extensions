@@ -106,7 +106,11 @@ open class CustomCocoaViewController:
   CocoaViewController,
   CustomCocoaViewControllerProtocol
 {
+  
   private(set) open var isVisible = false
+  
+  @Handler<Void>
+  public var onDismiss
   
   @Handler<Void>
   public var onViewDidLoad
@@ -169,6 +173,11 @@ open class CustomCocoaViewController:
   open override func loadView() {
     guard !tryLoadCustomContentView() else { return }
     super.loadView()
+  }
+  
+  open override func dismiss(_ sender: Any?) {
+    super.dismiss(sender)
+    self._onDismiss()
   }
   
   /// Use `override _init` instead of overriding this initializer
