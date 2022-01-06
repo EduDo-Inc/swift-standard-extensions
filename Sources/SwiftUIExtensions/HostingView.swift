@@ -2,7 +2,7 @@
 import SwiftUI
 import UIKit
 
-public class UIHostingView<RootView: View>: CustomCocoaView {
+open class UIHostingView<RootView: View>: CustomCocoaView {
   public let controller: UIHostingController<RootView>
   
   public convenience init(@ViewBuilder content: () -> RootView) {
@@ -33,14 +33,14 @@ public class UIHostingView<RootView: View>: CustomCocoaView {
     set { controller.rootView = newValue }
   }
   
-  public override func _init() {
+  open override func _init() {
     super._init()
     self.backgroundColor = .clear
     self.controller.view.backgroundColor = .clear
     self.addSubview(controller.view)
   }
   
-  public override func layoutSubviews() {
+  open override func layoutSubviews() {
     controller.view.frame = bounds
     controller.view.setNeedsLayout()
   }
@@ -59,11 +59,11 @@ extension UIHostingView {
 import SwiftUI
 import AppKit
 
-public class NSHostingController<RootView: View>: CustomCocoaViewController {
+open class NSHostingController<RootView: View>: CustomCocoaViewController {
   @CustomView
   public var contentView: NSHostingView<RootView>
   private var _rootView: RootView
-   
+  
   public init(rootView: RootView) {
     self._rootView = rootView
     super.init(nibName: nil, bundle: nil)
@@ -83,7 +83,7 @@ public class NSHostingController<RootView: View>: CustomCocoaViewController {
     super.init(coder: coder)
   }
   
-  public override func loadView() {
+  open override func loadView() {
     _contentView.load(NSHostingView(rootView: _rootView), to: self)
   }
 }
